@@ -13,12 +13,14 @@ namespace Milestone.Models
         private object date1;
 
         [Key]
-        public int Id { get; set; }
         public string boardCells { get; set; }
+        public int Id { get; set; }
         public int UID { get; set; }
         public string date { get; set; }
-        public BoardModel(string boardCells, int UID, string date)
+
+        public BoardModel(int Id, string boardCells, int UID, string date)
         {
+            this.Id = Id;
             this.boardCells = boardCells;
             this.UID = UID;
             this.date = date;

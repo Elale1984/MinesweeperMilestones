@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using CST_350_Minesweeper.Services;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Mvc;
 using Milestone.Models;
 using System;
 using System.Collections.Generic;
@@ -10,33 +12,34 @@ namespace Milestone.Controllers
 {
     [ApiController]
     [Route("api")]
+    [TypeFilter(typeof(AuthenticationFilter))]
+
     public class GameBoardAPI : ControllerBase
     {
         static List<BoardModel> DBObjects = new List<BoardModel>();
+        GameServices gameServices = new GameServices();
+
         [HttpGet("showSavedGames")]
         public ActionResult<IEnumerable<BoardModel>> Index()
         {
-            return DBObjects;
+            List<BoardModel> savedGames = gameServices.GetAllGames().ToList();
+            DBObjects = gameServices.GetAllGames().ToList();
+            return savedGames;
         }
+
         [HttpGet("showSavedGame/{id}")]
         public ActionResult<BoardModel> SavedGames(int id)
         {
-            if (DBObjects.Count > id)
-            {
-                return DBObjects.ElementAt(id);
-            } else
-            {
-                return new BoardModel();
-            }
+            return gameServices.GetSavedGame(id);   
         }
 
         [HttpGet("deleteOneGame/{id}")]
         public ActionResult<bool> DeleteGame(int id)
         {
-            if (DBObjects.Count >= id && id > 0)
+            if (gameServices.GetSavedGame(id) != null)
             {
-                DBObjects.RemoveAt(id - 1);
-                return true;
+
+                return gameServices.DeleteSavedGame(id);
             }
             else
             {
@@ -47,9 +50,12 @@ namespace Milestone.Controllers
         [HttpGet("addOneGame/{board}")]
         public ActionResult<bool> AddGame(string board)
         {
+            GameServices services = new();
+
             BoardModel model = JsonSerializer.Deserialize<BoardModel>(board);
             DBObjects.Add(model);
-            return true;
+            
+            return services.isSaved(model);
         }
 
     }

@@ -1,4 +1,11 @@
-﻿@model Milestone.Models.CellModel
+﻿<style>
+    .big_color {
+        font-size: 30px;
+        color: brown;
+    }
+</style>    
+
+@model Milestone.Models.CellModel
 
 @{
     //Add image names for game pieces here!
@@ -9,13 +16,13 @@
 
     @if (!@Model.Visited)
     {
-        if (Model.Flagged)
+        if (@Model.Flagged)
         {
-            <img class="game-button-image" src="~/Images/shovel.png" />
+            <img class="game-button-image" src="~/img/flagged.png" />
         }
         else
         {
-            <img class="game-button-image" src="~/Images/field.png" />
+            <img class="game-button-image" src="~/img/field.png" />
         }
     }
     else
@@ -23,20 +30,34 @@
 
         if (@Model.State > 0)
         {
-            <!--script>alert("Game Over!!!");</!--script-->
-            <img class="game-button-image" src="~/Images/bomb3.png" />
+            <img class="game-button-image" src="~/img/mine.png" />
         }
         else
         {
-            <img class="game-button-image" src="~/Images/hole3.png" />
-            <div class="centered">@Model.Neighbors</div>
+            var neighbors = @Model.Neighbors;
+            switch (neighbors)
+            {
+                case 0:
+                    <img class="game-button-image" src="~/img/0.png" />
+                    break;
+                case 1:
+                    <img class="game-button-image" src="~/img/1.png" />
+                    break;
+                case 2:
+                    <img class="game-button-image" src="~/img/2.png" />
+                    break;
+                case 3:
+                    <img class="game-button-image" src="~/img/3.png" />
+                    break;
+                case 4:
+                    <img class="game-button-image" src="~/img/4.png" />
+                    break;
+                default:
+                    break;
+
+            }
+  
         }
 
     }
-
-    <!--<div class="button-label">
-        @Model.State,
-        @Model.Neighbors,
-        @Model.Visited
-    </div>-->
 </button>

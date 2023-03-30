@@ -1,5 +1,7 @@
 ﻿using CST_350_Minesweeper.Models;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Data.SqlClient;
+
 
 namespace CST_350_Minesweeper.Services
 {
@@ -7,9 +9,10 @@ namespace CST_350_Minesweeper.Services
     {
         string connectionString = @"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=CST-350-Minesweeper;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
 
-        User loggedInUser;
+        private User loggedInUser;
+        static int currentUserId;
 
-        public bool FindUserByNameAndPassword(User user)
+        public User FindUserByNameAndPassword(User user)
         {
             bool success = false;
 
@@ -45,6 +48,9 @@ namespace CST_350_Minesweeper.Services
                                 Email = reader.GetString(reader.GetOrdinal("email")),
                                 State = reader.GetString(reader.GetOrdinal("state")),
                             };
+
+                            currentUserId = reader.GetInt32(reader.GetOrdinal("id"));
+
                         }
                     }
 
@@ -54,12 +60,18 @@ namespace CST_350_Minesweeper.Services
                     Console.WriteLine(ex.Message);
                 };
             }
-            return success;
+            return loggedInUser;
         }
 
         public User GetUser()
         {
             return loggedInUser;
         }
+
+        public int GetCurrentUserID()
+        {
+            return currentUserId;
+        }
+
     }
 }

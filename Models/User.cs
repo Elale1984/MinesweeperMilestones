@@ -4,6 +4,7 @@ namespace CST_350_Minesweeper.Models
 {
     public class User
     {
+
         // First Name, Last Name, Sex, Age, State, Email Address, Username, and Password
 
         [Required(ErrorMessage = "First name is required.")]
@@ -35,5 +36,6 @@ namespace CST_350_Minesweeper.Models
                            ErrorMessage = "Password must contain at least one uppercase letter, one lowercase letter, one digit, and one special character.")]
         public string Password { get; set; }
 
+        
     }
 }

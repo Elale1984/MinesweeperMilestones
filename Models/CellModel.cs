@@ -19,6 +19,7 @@ namespace Milestone.Models
         public bool Visited { get; set; }
 
         public bool Flagged { get; set; }
+
         public CellModel ()
         {
         }

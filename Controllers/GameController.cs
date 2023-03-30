@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using CST_350_Minesweeper.Models;
+using CST_350_Minesweeper.Services;
+using Microsoft.AspNetCore.Mvc;
 using Milestone.Models;
 using System;
 using System.Collections.Generic;
@@ -10,6 +12,9 @@ namespace Milestone.Controllers
 {
     public class GameController : Controller
     {
+
+      
+
         static List<CellModel> cells = new List<CellModel>();
 
         Random rand = new Random();
@@ -22,24 +27,38 @@ namespace Milestone.Controllers
 
             return View("Index", cells);
         }
-        public IActionResult ShowOneCell(int tileNumber)
-        {
+         public IActionResult ShowOneCell(int tileNumber)
+         {
+             if (cells[tileNumber].Flagged == false)
+             {
+                 if (cells[tileNumber].State > 0)
+                 {
+                     gameOver = true;
 
-            if (cells[tileNumber].Flagged == false)
-            {
-                if (cells[tileNumber].State > 0)
-                {
-                    gameOver = true;
-                    cells[tileNumber].Visited = true;
-                }
-                else
-                {
+                     cells[tileNumber].Visited = true;
+                     Console.WriteLine("Game Over Fool!!!");
+                 }
+                 else
+                 {
+                     
                     FloodFill(cells[tileNumber].Row, cells[tileNumber].Col);
-                }
-                cells.ElementAt(tileNumber).Visited = true;
-            }
-            return PartialView(cells.ElementAt(tileNumber));
-        }
+                    
+
+                 }
+                 cells.ElementAt(tileNumber).Visited = true;
+             }
+             if (cells[tileNumber].State > 0)
+             {
+                 LoginService loginService = new LoginService();
+                 User currentUser = loginService.GetCurrentLoggedInUser();
+                 GameOver(currentUser);
+             }
+            RedirectToAction("Index", "Game", cells);
+            return PartialView("showOneCell", cells.ElementAt(tileNumber));
+         }
+ 
+        
+
         public IActionResult RightClickOneCell(int tileNumber)
         {
 
@@ -110,37 +129,55 @@ namespace Milestone.Controllers
 
             return liveNeghbors;
         }
+      
+
 
         public void FloodFill(int row, int col)
-        {
-            CellModel currCell = (cells.Find(cell => cell.Row == row && cell.Col == col));
+         {
+             CellModel currCell = cells.Find(cell => cell.Row == row && cell.Col == col);
 
-            if (currCell == null || currCell.State > 0 || currCell.Visited)
-            {
-                return;
-            }
-            else
-            {
-                currCell.Neighbors = calculateLiveNeighbors(currCell);
-                currCell.Visited = true;
-            }
+             if (currCell == null || currCell.State > 0 || currCell.Visited)
+             {
+                 return;
+             }
+             else
+             {
 
-            if (currCell.Neighbors == 0)
-            {
-                int[] xmove = { -1, -1, -1, 0, 0, 1, 1, 1 };
-                int[] ymove = { -1, -0, 1, -1, 1, -1, 0, 1 };
+                 currCell.Neighbors = calculateLiveNeighbors(currCell);
+                 currCell.Visited = true;
 
-                for (int i = 0; i < 8; i++)
-                {
+             }
+
+             if (currCell.Neighbors == 0)
+             {
+                 int[] xmove = { -1, -1, -1, 0, 0, 1, 1, 1 };
+                 int[] ymove = { -1, -0, 1, -1, 1, -1, 0, 1 };
+
+                 for (int i = 0; i < 8; i++)
+                 {
                     FloodFill(row + xmove[i], col + ymove[i]);
+                    
+
                 }
-            }
+             }
+             
         }
+
         public IActionResult SaveGame(BoardModel board)
         {
-             new BoardModel(JsonSerializer.Serialize<List<CellModel>>(cells), board.UID, board.date);
-            (new GameBoardAPI()).AddGame(JsonSerializer.Serialize<BoardModel>(board));
-            return RedirectToAction("Index", "SavedGames ");
+            DateTime currentTime = DateTime.UtcNow;
+            string saveTime = currentTime.ToString("yyyy-MM-ddTHH:mm:ss.fffffffZ");
+            LoginService userServices = new LoginService();
+            int uID = userServices.GetUserID();
+            int Id = board.Id;
+            board = new BoardModel(Id, JsonSerializer.Serialize(cells), uID, saveTime);
+            new GameBoardAPI().AddGame(JsonSerializer.Serialize<BoardModel>(board));
+            return RedirectToAction("Index", "SavedGame");
+        }
+
+        public IActionResult GameOver(User user)
+        {
+            return View("GameOver", user);
         }
     }
 }

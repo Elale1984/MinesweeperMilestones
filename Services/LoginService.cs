@@ -6,7 +6,7 @@ namespace CST_350_Minesweeper.Services
     {
         LoginDAO loginDAO = new LoginDAO();
 
-        public bool IsValid(User user)
+        public User IsValid(User user)
         {
             return loginDAO.FindUserByNameAndPassword(user);
         }
@@ -15,5 +15,11 @@ namespace CST_350_Minesweeper.Services
         {
             return loginDAO.GetUser();
         }
+
+        public int GetUserID()
+        {
+            return loginDAO.GetCurrentUserID();
+        }
+     
     }
 }
